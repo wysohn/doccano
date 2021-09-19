@@ -1,4 +1,5 @@
 from django.db.models import Count, Q
+from django_filters.filters import CharFilter
 from django_filters.rest_framework import BooleanFilter, FilterSet
 
 from .models import Example
@@ -13,7 +14,7 @@ class DocumentFilter(FilterSet):
         queryset = queryset.annotate(num_annotations=Count(
             expression=field_name,
             filter=Q(**{f"{field_name}__user": self.request.user}) | Q(project__collaborative_annotation=True)
-            )
+        )
         )
 
         should_have_annotations = not value
@@ -34,7 +35,14 @@ class DocumentFilter(FilterSet):
 
 
 class ExampleFilter(FilterSet):
-    confirmed = BooleanFilter(field_name='states', method='filter_by_state')
+    filter = CharFilter(method='do_filter')
+
+    def do_filter(self, queryset, field_name, filter: str):
+        if filter == "checked":
+            return self.filter_by_state(queryset, 'states', True)
+        elif filter == "notchecked":
+            return self.filter_by_state(queryset, 'states', False)
+        return queryset
 
     def filter_by_state(self, queryset, field_name, is_confirmed: bool):
         queryset = queryset.annotate(
