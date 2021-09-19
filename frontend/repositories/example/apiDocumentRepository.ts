@@ -6,10 +6,10 @@ import { ExampleItem, ExampleItemList } from '~/domain/models/example/example'
 export class APIExampleRepository implements ExampleRepository {
   constructor(
     private readonly request = ApiService
-  ) {}
+  ) { }
 
-  async list(projectId: string, { limit = '10', offset = '0', q = '', isChecked = '' }: SearchOption): Promise<ExampleItemList> {
-    const url = `/projects/${projectId}/examples?limit=${limit}&offset=${offset}&q=${q}&confirmed=${isChecked}`
+  async list(projectId: string, { limit = '10', offset = '0', q = '', filter = '' }: SearchOption): Promise<ExampleItemList> {
+    const url = `/projects/${projectId}/examples?limit=${limit}&offset=${offset}&q=${q}&filter=${filter}`
     const response = await this.request.get(url)
     return ExampleItemList.valueOf(response.data)
   }

@@ -12,22 +12,13 @@
         @click:clear-label="clear"
         @click:review="confirm"
       />
-      <toolbar-mobile
-        :total="items.count"
-        class="d-flex d-sm-none"
-      />
+      <toolbar-mobile :total="items.count" class="d-flex d-sm-none" />
     </template>
     <template v-slot:content>
       <v-overlay :value="isLoading">
-        <v-progress-circular
-          indeterminate
-          size="64"
-        />
+        <v-progress-circular indeterminate size="64" />
       </v-overlay>
-      <audio-viewer
-        :source="item.url"
-        class="mb-5"
-      />
+      <audio-viewer :source="item.url" class="mb-5" />
       <seq2seq-box
         :text="item.text"
         :annotations="annotations"
@@ -43,16 +34,16 @@
 </template>
 
 <script>
-import _ from 'lodash'
-import LayoutText from '@/components/tasks/layout/LayoutText'
-import ListMetadata from '@/components/tasks/metadata/ListMetadata'
-import ToolbarLaptop from '@/components/tasks/toolbar/ToolbarLaptop'
-import ToolbarMobile from '@/components/tasks/toolbar/ToolbarMobile'
-import Seq2seqBox from '~/components/tasks/seq2seq/Seq2seqBox'
-import AudioViewer from '~/components/tasks/audio/AudioViewer'
+import _ from "lodash";
+import LayoutText from "@/components/tasks/layout/LayoutText";
+import ListMetadata from "@/components/tasks/metadata/ListMetadata";
+import ToolbarLaptop from "@/components/tasks/toolbar/ToolbarLaptop";
+import ToolbarMobile from "@/components/tasks/toolbar/ToolbarMobile";
+import Seq2seqBox from "~/components/tasks/seq2seq/Seq2seqBox";
+import AudioViewer from "~/components/tasks/audio/AudioViewer";
 
 export default {
-  layout: 'workspace',
+  layout: "workspace",
 
   components: {
     AudioViewer,
@@ -64,19 +55,19 @@ export default {
   },
 
   async fetch() {
-    this.isLoading = true
+    this.isLoading = true;
     this.items = await this.$services.example.fetchOne(
       this.projectId,
       this.$route.query.page,
       this.$route.query.q,
-      this.$route.query.isChecked
-    )
-    const item = this.items.items[0]
+      this.$route.query.filter
+    );
+    const item = this.items.items[0];
     if (this.enableAutoLabeling) {
-      await this.autoLabel(item.id)
+      await this.autoLabel(item.id);
     }
-    await this.list(item.id)
-    this.isLoading = false
+    await this.list(item.id);
+    this.isLoading = false;
   },
 
   data() {
@@ -86,78 +77,86 @@ export default {
       project: {},
       enableAutoLabeling: false,
       isLoading: false
-    }
+    };
   },
 
   computed: {
     projectId() {
-      return this.$route.params.id
+      return this.$route.params.id;
     },
     item() {
       if (_.isEmpty(this.items) || this.items.items.length === 0) {
-        return {}
+        return {};
       } else {
-        return this.items.items[0]
+        return this.items.items[0];
       }
     }
   },
 
   watch: {
-    '$route.query': '$fetch',
+    "$route.query": "$fetch",
     enableAutoLabeling(val) {
       if (val) {
-        this.list(this.item.id)
+        this.list(this.item.id);
       }
     }
   },
 
   async created() {
-    this.project = await this.$services.project.findById(this.projectId)
+    this.project = await this.$services.project.findById(this.projectId);
   },
 
   methods: {
     async list(itemId) {
-      this.annotations = await this.$services.seq2seq.list(this.projectId, itemId)
+      this.annotations = await this.$services.seq2seq.list(
+        this.projectId,
+        itemId
+      );
     },
 
     async remove(id) {
-      await this.$services.seq2seq.delete(this.projectId, this.item.id, id)
-      await this.list(this.item.id)
+      await this.$services.seq2seq.delete(this.projectId, this.item.id, id);
+      await this.list(this.item.id);
     },
 
     async add(text) {
-      await this.$services.seq2seq.create(this.projectId, this.item.id, text)
-      await this.list(this.item.id)
+      await this.$services.seq2seq.create(this.projectId, this.item.id, text);
+      await this.list(this.item.id);
     },
 
     async update(annotationId, text) {
-      await this.$services.seq2seq.changeText(this.projectId, this.item.id, annotationId, text)
-      await this.list(this.item.id)
+      await this.$services.seq2seq.changeText(
+        this.projectId,
+        this.item.id,
+        annotationId,
+        text
+      );
+      await this.list(this.item.id);
     },
 
     async clear() {
-      await this.$services.seq2seq.clear(this.projectId, this.item.id)
-      await this.list(this.item.id)
+      await this.$services.seq2seq.clear(this.projectId, this.item.id);
+      await this.list(this.item.id);
     },
 
     async autoLabel(itemId) {
       try {
-        await this.$services.seq2seq.autoLabel(this.projectId, itemId)
+        await this.$services.seq2seq.autoLabel(this.projectId, itemId);
       } catch (e) {
-        console.log(e.response.data.detail)
+        console.log(e.response.data.detail);
       }
     },
 
     async confirm() {
-      await this.$services.example.confirm(this.projectId, this.item.id)
-      await this.$fetch()
+      await this.$services.example.confirm(this.projectId, this.item.id);
+      await this.$fetch();
     }
   },
 
   validate({ params, query }) {
-    return /^\d+$/.test(params.id) && /^\d+$/.test(query.page)
+    return /^\d+$/.test(params.id) && /^\d+$/.test(query.page);
   }
-}
+};
 </script>
 
 <style scoped>

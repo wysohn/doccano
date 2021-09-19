@@ -16,23 +16,23 @@ export class PageNumber {
 
 export class OptionItem {
   constructor(
-    public page      : number,
-    public q?        : string,
-    public isChecked?: string
-  ) {}
+    public page: number,
+    public q?: string,
+    public filter?: string
+  ) { }
 
   static valueOf(
-    { page, q = '', isChecked = '' }:
-    { page: number, q?: string, isChecked?: string }
+    { page, q = '', filter = '' }:
+      { page: number, q?: string, filter?: string }
   ): OptionItem {
-    return new OptionItem(page, q, isChecked)
+    return new OptionItem(page, q, filter)
   }
 
   toObject(): Object {
     return {
       page: this.page,
       q: this.q,
-      isChecked: this.isChecked
+      filter: this.filter
     }
   }
 }

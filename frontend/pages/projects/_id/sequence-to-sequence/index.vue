@@ -12,10 +12,7 @@
         @click:clear-label="clear"
         @click:review="confirm"
       />
-      <toolbar-mobile
-        :total="docs.count"
-        class="d-flex d-sm-none"
-      />
+      <toolbar-mobile :total="docs.count" class="d-flex d-sm-none" />
     </template>
     <template v-slot:content>
       <v-card class="mb-5">
@@ -36,15 +33,15 @@
 </template>
 
 <script>
-import _ from 'lodash'
-import LayoutText from '@/components/tasks/layout/LayoutText'
-import ListMetadata from '@/components/tasks/metadata/ListMetadata'
-import ToolbarLaptop from '@/components/tasks/toolbar/ToolbarLaptop'
-import ToolbarMobile from '@/components/tasks/toolbar/ToolbarMobile'
-import Seq2seqBox from '~/components/tasks/seq2seq/Seq2seqBox'
+import _ from "lodash";
+import LayoutText from "@/components/tasks/layout/LayoutText";
+import ListMetadata from "@/components/tasks/metadata/ListMetadata";
+import ToolbarLaptop from "@/components/tasks/toolbar/ToolbarLaptop";
+import ToolbarMobile from "@/components/tasks/toolbar/ToolbarMobile";
+import Seq2seqBox from "~/components/tasks/seq2seq/Seq2seqBox";
 
 export default {
-  layout: 'workspace',
+  layout: "workspace",
 
   components: {
     LayoutText,
@@ -59,13 +56,13 @@ export default {
       this.projectId,
       this.$route.query.page,
       this.$route.query.q,
-      this.$route.query.isChecked
-    )
-    const doc = this.docs.items[0]
+      this.$route.query.filter
+    );
+    const doc = this.docs.items[0];
     if (this.enableAutoLabeling) {
-      await this.autoLabel(doc.id)
+      await this.autoLabel(doc.id);
     }
-    await this.list(doc.id)
+    await this.list(doc.id);
   },
 
   data() {
@@ -74,78 +71,86 @@ export default {
       docs: [],
       project: {},
       enableAutoLabeling: false
-    }
+    };
   },
 
   computed: {
     projectId() {
-      return this.$route.params.id
+      return this.$route.params.id;
     },
     doc() {
       if (_.isEmpty(this.docs) || this.docs.items.length === 0) {
-        return {}
+        return {};
       } else {
-        return this.docs.items[0]
+        return this.docs.items[0];
       }
     }
   },
 
   watch: {
-    '$route.query': '$fetch',
+    "$route.query": "$fetch",
     enableAutoLabeling(val) {
       if (val) {
-        this.list(this.doc.id)
+        this.list(this.doc.id);
       }
     }
   },
 
   async created() {
-    this.project = await this.$services.project.findById(this.projectId)
+    this.project = await this.$services.project.findById(this.projectId);
   },
 
   methods: {
     async list(docId) {
-      this.annotations = await this.$services.seq2seq.list(this.projectId, docId)
+      this.annotations = await this.$services.seq2seq.list(
+        this.projectId,
+        docId
+      );
     },
 
     async remove(id) {
-      await this.$services.seq2seq.delete(this.projectId, this.doc.id, id)
-      await this.list(this.doc.id)
+      await this.$services.seq2seq.delete(this.projectId, this.doc.id, id);
+      await this.list(this.doc.id);
     },
 
     async add(text) {
-      await this.$services.seq2seq.create(this.projectId, this.doc.id, text)
-      await this.list(this.doc.id)
+      await this.$services.seq2seq.create(this.projectId, this.doc.id, text);
+      await this.list(this.doc.id);
     },
 
     async update(annotationId, text) {
-      await this.$services.seq2seq.changeText(this.projectId, this.doc.id, annotationId, text)
-      await this.list(this.doc.id)
+      await this.$services.seq2seq.changeText(
+        this.projectId,
+        this.doc.id,
+        annotationId,
+        text
+      );
+      await this.list(this.doc.id);
     },
 
     async clear() {
-      await this.$services.seq2seq.clear(this.projectId, this.doc.id)
-      await this.list(this.doc.id)
+      await this.$services.seq2seq.clear(this.projectId, this.doc.id);
+      await this.list(this.doc.id);
     },
 
     async autoLabel(docId) {
       try {
-        await this.$services.seq2seq.autoLabel(this.projectId, docId)
+        await this.$services.seq2seq.autoLabel(this.projectId, docId);
       } catch (e) {
-        console.log(e.response.data.detail)
+        console.log(e.response.data.detail);
       }
     },
 
     async confirm() {
-      await this.$services.example.confirm(this.projectId, this.doc.id)
-      await this.$fetch()
+      await this.$services.example.confirm(this.projectId, this.doc.id);
+      await this.$fetch();
     }
   },
 
   validate({ params, query }) {
-    return /^\d+$/.test(params.id) && /^\d+$/.test(query.page)
+    return /^\d+$/.test(params.id) && /^\d+$/.test(query.page);
   }
-}
+};
 </script>
 
 <style scoped>
