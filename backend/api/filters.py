@@ -42,6 +42,16 @@ class ExampleFilter(FilterSet):
             return self.filter_by_state(queryset, 'states', True)
         elif filter == "notchecked":
             return self.filter_by_state(queryset, 'states', False)
+        elif filter == "annotated":
+            spans = self.filter_by_annotation(queryset, 'spans', True)
+            categories = self.filter_by_annotation(queryset, 'categories', True)
+            texts = self.filter_by_annotation(queryset, 'texts', True)
+            return spans | categories | texts
+        elif filter == "notannotated":
+            spans = self.filter_by_annotation(queryset, 'spans', False)
+            categories = self.filter_by_annotation(queryset, 'categories', False)
+            texts = self.filter_by_annotation(queryset, 'texts', False)
+            return spans & categories & texts
         return queryset
 
     def filter_by_state(self, queryset, field_name, is_confirmed: bool):
@@ -56,6 +66,17 @@ class ExampleFilter(FilterSet):
             queryset = queryset.filter(num_confirm__gte=1)
         else:
             queryset = queryset.filter(num_confirm__lte=0)
+        return queryset
+
+    def filter_by_annotation(self, queryset, field_name, annotated: bool):
+        queryset = queryset.annotate(num_annotations=Count(
+            expression=field_name,
+            filter=Q(**{f"{field_name}__user": self.request.user}) | Q(project__collaborative_annotation=True)
+        ))
+        if annotated:
+            queryset = queryset.filter(num_annotations__gte=1)
+        else:
+            queryset = queryset.filter(num_annotations__lte=0)
         return queryset
 
     class Meta:

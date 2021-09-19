@@ -42,7 +42,9 @@ export default {
       items: [
         { title: this.$t("annotation.filterOption1"), param: "" },
         { title: this.$t("annotation.filterOption2"), param: "checked" },
-        { title: this.$t("annotation.filterOption3"), param: "notchecked" }
+        { title: this.$t("annotation.filterOption3"), param: "notchecked" },
+        { title: this.$t("annotation.filterOption4"), param: "annotated" },
+        { title: this.$t("annotation.filterOption5"), param: "notannotated" }
       ]
     };
   },

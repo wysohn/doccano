@@ -5,6 +5,8 @@ export default {
   filterOption1: 'All',
   filterOption2: 'Done',
   filterOption3: 'Undone',
+  filterOption4: 'Annotated',
+  filterOption5: 'Not Annotated',
   guidelineTooltip: 'Show Guideline',
   guidelinePopupTitle: 'Annotation Guideline',
   commentTooltip: 'Click to comment on document',
